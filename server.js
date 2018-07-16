@@ -1,34 +1,82 @@
 const app = require('express')(),
-      methodOverride = require('method-override'),
-      cors = require('cors'),
-      path = require('path'),
-      fs = require('fs'),
       bodyParser = require('body-parser'),
-      configs = require('./configs'),
       bucketRouter = require('./routers/buckets'),
-      logger = require('morgan');
+      configs = require('./configs'),
+      cors = require('cors'),
+      e = require('./utils/error'),
+      fs = require('fs'),
+      logger = require('morgan'),
+      methodOverride = require('method-override'),
+      path = require('path'),
+      expressSwagger = require('express-swagger-generator')(app);
 
-const port = process.env.PORT || configs.port || 3000;
 
+app.disable('x-powered-by');
 // logging - `flag:a` is for appending to the log
 let logStream = fs.createWriteStream(path.join(__dirname, './logs/', 'buckets.log'), {flags: 'a'}); 
 app.use(logger('combined', {stream: logStream}));
-
-
 app.use(methodOverride());
 app.use(cors());
-
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }))
-// parse application/json
-app.use(bodyParser.json())
+// TODO - Need to handle _all_ content-types for /buckets/:bucketName/requests endpoint 
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(bodyParser.text({type: 'text/plain'}));
+app.use(bodyParser.text({type: 'text/xml'}));;
 
-app.route('/').all((req, res) => {
-      res.status(400).json({message: `Unable to access this path`});
+const port = process.env.PORT || configs.port || 3000;
+
+//TODO - need better approach
+// app.post('*',function(req,res, next) {
+//       if(!req.path.endsWith('/requests'))
+//       validateContentTypeHeader(req,next);
+//       next();// ensure application/json for all requests besides /buckets/:bucketName/requests
+// });
+// app.patch('*',function(req,res,next) {
+//       if(!req.path.endsWith('/requests'))
+//       validateContentTypeHeader(req,next);// ensure application/json for all requests besides /buckets/:bucketName/requests
+//       next();
+// });
+let options = {
+    swaggerDefinition: {
+        info: {
+            description: 'Create buckets and send requests to them for inspection',
+            title: 'Specio',
+            version: '1.0.0',
+        },
+        host: 'localhost:3000',
+        produces: [
+            "application/json"
+        ],
+        schemes: ['http', 'https'],
+    },
+    basedir: __dirname,
+    files: ['./routers/buckets.js','./routers/requests.js'] 
+};
+expressSwagger(options)
+
+
+
+app.route('/').all((req, res, next) => {
+      return next(new e.NotFound(`Resource not found`));
 })
+
+
 app.use('/buckets', bucketRouter);
+app.use(function(err, req, res, next){
+      res.status(err.status).json({message: err.message});
+});
+initDb();
+app.listen(port, () => console.log('Listening on port ' + port));
 
-app.listen(port, () => console.log('Listening on 3000!'));
+// TODO - need better approach
+function initDb() {
+      require('./db/db');
+}
 
-
+// TODO - need better approach
+// function validateContentTypeHeader(req, cb) {
+//       if(Object.keys(req.headers).filter(key => key.toLowerCase() === 'content-type').length === 0) 
+//       return cb(new e.BadRequest('Must include Content-Type header'));
+//       if(req.headers['content-type'] != 'application/json') return cb(new e.BadRequest('Must provide valid JSON for this endpoint'))
+//       return;
+// }

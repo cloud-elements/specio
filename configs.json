@@ -1,5 +1,5 @@
 {
   "mongoUrl": "mongodb://localhost:27017/",
-  "db": {"neverland": "neverland"},
+  "dbName": "neverland",
   "port": 3000
 }
