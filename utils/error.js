@@ -5,9 +5,15 @@ class SpecioError extends Error {
   }
 }
 
-class NotFound extends SpecioError {
+class BadRequest extends SpecioError {
   constructor(message) {
-    super(message, 404);
+    super(message, 400);
+  }
+}
+
+class Unauthorized extends SpecioError {
+  constructor(message) {
+    super(message, 401);
   };  
 }
 
@@ -16,9 +22,10 @@ class Forbidden extends SpecioError {
     super(message, 403);
   };  
 }
-class Unauthorized extends SpecioError {
+
+class NotFound extends SpecioError {
   constructor(message) {
-    super(message, 401);
+    super(message, 404);
   };  
 }
 
@@ -28,23 +35,18 @@ class MethodNotAllowed extends SpecioError {
   }
 }
 
-class InternalServerError extends SpecioError {
-  constructor(message) {
-    super(message, 500);
-  }
-}
-
 class Conflict extends SpecioError {
   constructor(message) {
     super(message, 409);
   }
 }
 
-class BadRequest extends SpecioError {
+class InternalServerError extends SpecioError {
   constructor(message) {
-    super(message, 400);
+    super(message, 500);
   }
 }
+
 module.exports = { 
   NotFound, 
   Forbidden, 
