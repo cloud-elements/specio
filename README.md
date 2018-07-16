@@ -12,4 +12,5 @@ Small app for generating buckets and storing requests
 ### Steps
 * Setup environment to match _configs.js_ file
 * `npm install`
+* `npm start`
 * Navigate to `localhost:<PORT_USED>/api-docs`
