@@ -10,7 +10,9 @@ router.route('/')
  * @group buckets - Create a bucket
  * @param {BucketPayload.model} bucket.body.required - The bucket to create
  * @returns {Bucket.model} 200 - The created bucket
- * @returns {Error}  default - Unexpected error
+ * @returns {Error}  default - Unexpected error  
+ * @produces application/json
+ * @consumes application/json
  */
 .post(methods.createBucket)
 .all((req, res, next) => next(new e.MethodNotAllowed(`${(req.method).toUpperCase()} not allowed on this endpoint`)));
