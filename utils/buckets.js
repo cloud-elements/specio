@@ -20,6 +20,12 @@ function removeBucket(req, res, next, bucket){
     });
   });
 }
+function deleteAllRequests(req, res, next, bucket) {
+  Request.deleteMany({ bucket }, (err) => {
+    if (err) return next(new e.InternalServerError(`An error occurred while attempting to delete bucket '${req.params.bucketName}'`));
+    res.sendStatus(200);
+  });
+}
 // function removeBucket(bucketId) {
 //   Bucket.remove({name}, (err, result) => {
 //     if (err) return next(new e.InternalServerError(`An error occurred while attempting to delete bucket '${name}'`));
@@ -72,6 +78,9 @@ module.exports = {
   },
   deleteBucket: (req, res, next) => {
     retrieveBucketId(req, res, next, removeBucket);
+  },
+  clearBucket: (req, res, next) => {
+    retrieveBucketId(req, res, next, deleteAllRequests);
   },
   retrieveBucketId: retrieveBucketId  
 }

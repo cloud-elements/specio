@@ -16,6 +16,17 @@ router.route('/summary')
 .get(methods.getRequests)
 .all((req, res, next) => next(new e.MethodNotAllowed(`${(req.method).toUpperCase()} not allowed on this endpoint`)));;
 
+router.route('/clear')
+/**
+ * @route DELETE /buckets/{bucketName}/requests/clear
+ * @group requests - Clear the list of requests for a given bucket
+ * @param {string} bucketName.path.required - Name of the bucket
+ * @returns {"OK"} 200 - Empty response
+ * @returns {Error}  default - Unexpected error
+ */
+.delete(methods.clearRequests)
+.all((req, res, next) => next(new e.MethodNotAllowed(`${(req.method).toUpperCase()} not allowed on this endpoint`)));;
+
 router.route('/:requestId')
 /**
  * @route GET /buckets/{bucketName}/requests/{requestId}
