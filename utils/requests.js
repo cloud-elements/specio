@@ -1,7 +1,8 @@
 const Request = require('../models/models').Request,
       ObjectId = require('mongodb').ObjectId,
       e = require('./error'),
-      retrieveBucketId = require('./buckets').retrieveBucketId;
+      retrieveBucketId = require('./buckets').retrieveBucketId,
+      clearBucket = require('./buckets').clearBucket;
 
 function insertRequest(req, res, next, bucketId){
   let request = {};
@@ -24,7 +25,7 @@ function findRequests(req, res, next, bucketId){
       if (err) {
         return next(new e.InternalServerError(`Error retrieving requests for '${bucketName}'`));
       } else if (requests.length == 0) {
-        return next(new e.NotFound(`Bucket is empty`));
+        return res.json([]);
       } else {
         res.json(requests);
       }
@@ -48,7 +49,7 @@ function retrieveRequestById(req, res, next, bucket) {
   Request.findById({_id, bucket}).exec(function(err, requests) {
     if (err) {
       return next(new e.InternalServerError(`Error retrieving requests for '${bucketName}'`));
-    } else if (requests.length == 0) {
+    } else if (requests && requests.length == 0) {
       return next(new e.NotFound(`Unable to locate request '${_id}' for bucket with name '${bucketName}'`));
     } else {
       res.json(requests);
@@ -69,5 +70,8 @@ module.exports = {
   },
   deleteRequest: (req, res, next) => {
     retrieveBucketId(req, res, next, removeRequestById);
-  }   
+  },
+  clearRequests: (req, res, next) => {
+    retrieveBucketId(req, res, next, clearBucket);
+  },
 }

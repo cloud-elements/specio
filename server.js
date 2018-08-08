@@ -9,13 +9,23 @@ const app = require('express')(),
       logger = require('morgan'),
       methodOverride = require('method-override'),
       path = require('path'),
-      swaggerConfigs = require('./swaggerConfigs');
+      swaggerConfigs = require('./swaggerConfigs'),
+      logDirectory = `logs`,
+      logFile = `buckets.log`;
 
+if (!fs.existsSync(logDirectory)) {
+      console.log(`Creating log directory ${logDirectory}`);
+      fs.mkdirSync(logDirectory);
+}
+if (!fs.existsSync(`${logDirectory}/${logFile}`)) {
+      console.log(`Creating log file ${logFile}`);
+      fs.createWriteStream(`${logDirectory}/${logFile}`);
+}
 
-app.disable('x-powered-by');
 // logging - `flag:a` is for appending to the log
-let logStream = fs.createWriteStream(path.join(__dirname, './logs/', 'buckets.log'), {flags: 'a'}); 
+let logStream = fs.createWriteStream(path.join(__dirname, `./${logDirectory}/`, logFile), {flags: 'a'}); 
 app.use(logger('combined', {stream: logStream}));
+app.disable('x-powered-by');
 app.use(methodOverride());
 app.use(cors());
 // TODO - Need to handle _all_ content-types for /buckets/:bucketName/requests endpoint 
