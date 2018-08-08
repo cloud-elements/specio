@@ -1,5 +1,5 @@
 {
-  "name": "neverland",
+  "name": "specio",
   "version": "1.0.0",
   "description": "Receives webhooks and stores them in auto-generated buckets",
   "main": "server.js",
