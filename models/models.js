@@ -11,6 +11,7 @@ const request = new Schema({
     of: Schema.Types.Mixed
   },
   body: Schema.Types.Mixed,
+  rawBody: Schema.Types.Mixed,
   method: {type: String, required: true},
   params: {
     type: Map,

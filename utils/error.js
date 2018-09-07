@@ -1,7 +1,8 @@
 class SpecioError extends Error {
-  constructor(message, status) {
+  constructor(message, status, exception) {
     super(message);
     this.status = status;
+    this.exception = exception;
   }
 }
 

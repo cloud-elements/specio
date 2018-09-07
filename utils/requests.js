@@ -9,12 +9,13 @@ function insertRequest(req, res, next, bucketId){
   request.bucket = bucketId;
   request.bucketName = req.params.bucketName;
   request.body = req.body ? req.body : null;
+  request.rawBody = req.body;
   request.headers = req.headers;
   request.url =  req.protocol + '://' + req.get('host') + req.originalUrl;
   request.params = req.query;
   request.method = req.method;
   Request.create(request, (err, result) => {
-    if (err) return next(new e.InternalServerError(`Unable to accept request for bucket '${req.params.bucketName}'`));
+    if (err) return next(new e.InternalServerError(`Unable to accept request for bucket '${req.params.bucketName}'. Error: ${JSON.stringify(err)}`, err));
     res.json(result);
   });
 }
