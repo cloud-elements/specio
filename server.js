@@ -58,6 +58,11 @@ expressSwagger(swaggerConfigs);
 
 app.route('/').all((req, res, next) => next(new e.NotFound(`Resource not found`)));
 app.use('/buckets', bucketRouter);
+
+
+app.route('/ping')
+  .all((req, res, next) => res.sendStatus(200));
+
 app.use((err, req, res, next) => {
   res.status(getStatus(err.status)).json({ message: err.message });
 });
