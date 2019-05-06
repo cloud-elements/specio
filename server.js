@@ -64,6 +64,7 @@ app.route('/ping')
   .all((req, res, next) => res.sendStatus(200));
 
 app.use((err, req, res, next) => {
+  if (err.exception) console.error(err);
   res.status(getStatus(err.status)).json({ message: err.message });
 });
 
