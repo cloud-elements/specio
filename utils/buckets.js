@@ -6,23 +6,23 @@ function retrieveBucketId(req, res, next, cb) {
   let name = req.params.bucketName;
   if (!name) return next(new e.BadRequest('Bucket name not found'));
   Bucket.findOne({name}).exec(function(err, bucket){
-    if (err) return next(new e.InternalServerError(`Unable to retrieve bucket`));
+    if (err) return next(new e.InternalServerError(`Unable to retrieve bucket`, err));
     if (!bucket) return next(new e.NotFound(`Unable to locate bucket with name '${name}'`));
     cb(req, res, next, bucket._id);
   });
 }
 function removeBucket(req, res, next, bucket){
   Request.deleteMany({bucket}, (err) => {
-    if (err) return next(new e.InternalServerError(`An error occurred while attempting to delete bucket '${req.params.bucketName}'`));
+    if (err) return next(new e.InternalServerError(`An error occurred while attempting to delete bucket '${req.params.bucketName}'`, err));
     Bucket.deleteOne({_id: bucket}, (err) => {
-      if (err) return next(new e.InternalServerError(`Successfully deleted requests but unable to delete bucket with name of '${req.params.bucketName}'`));
+      if (err) return next(new e.InternalServerError(`Successfully deleted requests but unable to delete bucket with name of '${req.params.bucketName}'`, err));
       res.sendStatus(200);
     });
   });
 }
 function deleteAllRequests(req, res, next, bucket) {
   Request.deleteMany({ bucket }, (err) => {
-    if (err) return next(new e.InternalServerError(`An error occurred while attempting to delete bucket '${req.params.bucketName}'`));
+    if (err) return next(new e.InternalServerError(`An error occurred while attempting to delete bucket '${req.params.bucketName}'`, err));
     res.sendStatus(200);
   });
 }
@@ -37,9 +37,8 @@ module.exports = {
   getBucket: (req, res, next) => {
     let name = req.params.bucketName;
     Bucket.findOne({name}).exec(function(err, bucket) {
-        
         if (err) {
-          return next(new e.InternalServerError(`Error retrieving bucket with name '${name}'`));
+          return next(new e.InternalServerError(`Error retrieving bucket with name '${name}'`, err));
         } else if (!bucket) {
           return next(new e.NotFound(`Unable to locate bucket with name '${name}'`));
         } else {
@@ -54,7 +53,7 @@ module.exports = {
         if (err.code === 11000) {
           return next(new e.Conflict(`Bucket '${req.body.name}' already exists`))
         } else {
-          return next(new e.InternalServerError(`Unable to createBucket with name of '${req.body.name}'`));
+          return next(new e.InternalServerError(`Unable to createBucket with name of '${req.body.name}'`, err));
         }
       };
       res.json(result);
@@ -70,7 +69,7 @@ module.exports = {
         if (err.code === 11000) {
           return next(new e.Conflict(`Bucket with ${newName} already exists`))
         } else {
-          return next(new e.InternalServerError(`Unable to update bucket with name of '${name}'`));
+          return next(new e.InternalServerError(`Unable to update bucket with name of '${name}'`, err));
         }
       } 
       res.json(result);

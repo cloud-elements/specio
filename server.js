@@ -1,30 +1,50 @@
 const app = require('express')(),
-      bodyParser = require('body-parser'),
-      bucketRouter = require('./routers/buckets'),
-      configs = require('./configs'),
-      cors = require('cors'),
-      e = require('./utils/error'),
-      expressSwagger = require('express-swagger-generator')(app),
-      fs = require('fs'),
-      logger = require('morgan'),
-      methodOverride = require('method-override'),
-      path = require('path'),
-      swaggerConfigs = require('./swaggerConfigs'),
-      logDirectory = `logs`,
-      logFile = `buckets.log`;
+  bodyParser = require('body-parser'),
+  bucketRouter = require('./routers/buckets'),
+  configs = require('./configs'),
+  cors = require('cors'),
+  e = require('./utils/error'),
+  expressSwagger = require('express-swagger-generator')(app),
+  fs = require('fs'),
+  morgan = require('morgan'),
+  winston = require('winston'),
+  methodOverride = require('method-override'),
+  path = require('path'),
+  swaggerConfigs = require('./swaggerConfigs'),
+  logDirectory = require('./configs').logDirectory,
+  logFile = require('./configs').logFile;
 
 if (!fs.existsSync(logDirectory)) {
-      console.log(`Creating log directory ${logDirectory}`);
-      fs.mkdirSync(logDirectory);
+  console.log(`Creating log directory ${logDirectory}`);
+  fs.mkdirSync(logDirectory);
 }
 if (!fs.existsSync(`${logDirectory}/${logFile}`)) {
-      console.log(`Creating log file ${logFile}`);
-      fs.createWriteStream(`${logDirectory}/${logFile}`);
+  console.log(`Creating log file ${logFile}`);
+  fs.createWriteStream(`${logDirectory}/${logFile}`);
 }
 
-// logging - `flag:a` is for appending to the log
-let logStream = fs.createWriteStream(path.join(__dirname, `./${logDirectory}/`, logFile), {flags: 'a'}); 
-app.use(logger('combined', {stream: logStream}));
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.File({
+      level: 'info',
+      filename: `./${logDirectory}/${logFile}`,
+      handleExceptions: true,
+      json: true,
+      maxsize: 5242880, //5MB
+      maxFiles: 5,
+      colorize: true
+    }),
+    new winston.transports.Console({
+      level: 'debug',
+      handleExceptions: true,
+      json: false,
+      colorize: true
+    })
+  ],
+  exitOnError: false
+});
+// Setup console and file loggers
+app.use(morgan('combined', { stream: { write: (message, encoding) => { logger.info(message) } } }));
 app.disable('x-powered-by');
 app.use(methodOverride());
 app.use(cors());
@@ -32,27 +52,33 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.text());
-
-const port = process.env.PORT || configs.port || 3000;
+// app.use(bodyParser.raw({inflate: true, limit: '100kb', type: '*/*'}));
 
 expressSwagger(swaggerConfigs);
 
-app.route('/').all((req, res, next) => {
-      return next(new e.NotFound(`Resource not found`));
-})
-
-
+app.route('/').all((req, res, next) => next(new e.NotFound(`Resource not found`)));
 app.use('/buckets', bucketRouter);
-app.use(function(err, req, res, next){
-      res.status(err.status).json({message: err.message});
+
+
+app.route('/ping')
+  .all((req, res, next) => res.sendStatus(200));
+
+app.use((err, req, res, next) => {
+  if (err.exception) console.error(err);
+  res.status(getStatus(err.status)).json({ message: err.message });
 });
+
 initDb();
-app.listen(port, () => console.log('Listening on port ' + port));
+
+const port = process.env.PORT || configs.port || 3000;
+app.listen(port, () => console.log(`Listening on port ${port}\n`));
 
 // TODO - need better approach
 function initDb() {
-      require('./db/db');
+  require('./db/db');
 }
+
+const getStatus = (statusCode) => statusCode >= 100 && statusCode < 600 ? statusCode : 500;
 
 // TODO - need better approach
 // function validateContentTypeHeader(req, cb) {

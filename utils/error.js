@@ -1,49 +1,50 @@
 class SpecioError extends Error {
-  constructor(message, status) {
+  constructor(message, status, exception) {
     super(message);
     this.status = status;
+    this.exception = exception;
   }
 }
 
 class BadRequest extends SpecioError {
-  constructor(message) {
-    super(message, 400);
+  constructor(message, ex) {
+    super(message, 400, ex);
   }
 }
 
 class Unauthorized extends SpecioError {
-  constructor(message) {
-    super(message, 401);
+  constructor(message, ex) {
+    super(message, 401, ex);
   };  
 }
 
 class Forbidden extends SpecioError {
-  constructor(message) {
-    super(message, 403);
+  constructor(message, ex) {
+    super(message, 403, ex);
   };  
 }
 
 class NotFound extends SpecioError {
-  constructor(message) {
-    super(message, 404);
+  constructor(message, ex) {
+    super(message, 404, ex);
   };  
 }
 
 class MethodNotAllowed extends SpecioError {
-  constructor(message) {
-    super(message, 405);
+  constructor(message, ex) {
+    super(message, 405, ex);
   }
 }
 
 class Conflict extends SpecioError {
-  constructor(message) {
-    super(message, 409);
+  constructor(message, ex) {
+    super(message, 409, ex);
   }
 }
 
 class InternalServerError extends SpecioError {
-  constructor(message) {
-    super(message, 500);
+  constructor(message, ex) {
+    super(message, 500, ex);
   }
 }
 
