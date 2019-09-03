@@ -1,11 +1,11 @@
 {
   "name": "specio",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Receives webhooks and stores them in auto-generated buckets",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "publish": "now alias specio-bin"
+    "publish": "now --public && now alias specio-bin"
   },
   "author": "Taylor Clark",
   "license": "ISC",
