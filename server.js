@@ -1,6 +1,7 @@
 const app = require('express')(),
   bodyParser = require('body-parser'),
   bucketRouter = require('./routers/buckets'),
+  echoRouter = require('./routers/echo'),
   configs = require('./configs'),
   cors = require('cors'),
   e = require('./utils/error'),
@@ -58,6 +59,7 @@ expressSwagger(swaggerConfigs);
 
 app.route('/').all((req, res, next) => next(new e.NotFound(`Resource not found`)));
 app.use('/buckets', bucketRouter);
+app.use('/echo', echoRouter);
 
 
 app.route('/ping')

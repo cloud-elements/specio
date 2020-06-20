@@ -4,10 +4,17 @@ Small app for generating buckets and storing requests
 ![spectacles](http://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/glasses.png)
 
 ## Setup
+
+### Typical Setup
 1. Align _configs.js_ and environment with Mongo info
 2. `npm install`
 3. `npm start`
 4. Navigate to `localhost:<PORT_USED>/api-docs`
+
+### Docker
+```
+$ docker-compose -f deploy/compose/docker-compose.yaml up --build
+```
 
 ## New Mongo DB setup (_if using mlab_)
 1. Visit https://mlab.com/home
